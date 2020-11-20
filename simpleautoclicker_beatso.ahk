@@ -63,7 +63,7 @@ ButtonOK:
 		timer := CdSliderValue * 1000
 	}
 
-    MsgBox, Timer set to %timer% ms. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
+    MsgBox, , Simple Auto Clicker, Cooldown set to %timer% ms. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
 
     ;Option set so that the user is able to trigger CTRL+SHIFT+J while looping
     #MaxThreadsPerHotkey 3
@@ -75,7 +75,7 @@ return
     ;Check if window is initialized and asks user for it if it wasn't
 	if (winid = "")
 	{
-		MsgBox, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
+		MsgBox, , Simple Auto Clicker, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
 		return
 	}
 
@@ -116,5 +116,5 @@ return
 #MaxThreadsPerHotkey 1
 
 ^!j::
-	MsgBox, Simple Auto Clicker closed
+	MsgBox, , Simple Auto Clicker, Simple Auto Clicker closed
 	ExitApp
