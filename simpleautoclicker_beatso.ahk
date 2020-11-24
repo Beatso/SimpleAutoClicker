@@ -70,6 +70,7 @@ ButtonOK:
 return
 
 ^+j::
+    DetectHiddenWindows, On
     WinGet, currentWinId, , A
 
     ;Check if window is initialized and asks user for it if it wasn't
