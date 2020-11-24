@@ -10,6 +10,7 @@ SetWorkingDir %A_ScriptDir%
 Global optObj := Object("Spam Click", 100, "Any Sword", 625, "Wooden or Stone Axe", 1250, "Iron Axe", 1110, "Gold, Diamond or Netherite Axe", 1000)
 Global optListStr := "|"
 Global timer = 1000
+Global appTitle = "Simple Auto Clicker v2.0.1"
 
 Global isClicking = False
 Global guiInitialized = False
@@ -21,7 +22,7 @@ for k, v in optObj
 MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
 
 ^j::
-	WinGet, currentWinId, , A
+    WinGet, currentWinId, , A
     WinClose, ahk_class #32770
 
     ;avoid setting variables to GUI controls twice, enabling reopening of GUI and change settings by just invoking CTRL+J at any time
@@ -30,22 +31,31 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
         WinGet, winid, , A
         WinGetTitle, winname, A
 
-		Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program altogether.
-		Gui Add, CheckBox, x16 y64 w120 h23 vRightClick, Hold Right Click?
-		Gui Add, Text, x144 y64 w54 h23 +0x200, Cooldown:
-		Gui Add, DropDownList, x201 y64 w215 vweapon Choose2,%optListStr%
-		Gui Add, CheckBox, x16 y96 w120 h23 vCustomCooldown, Custom Cooldown
-		Gui Add, Slider, x144 y96 w201 h32 +Tooltip Range2-40 vCdSliderValue, 2
-		Gui Add, Button, x16 y128 w80 h23, &OK
+        Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program altogether.
+        Gui Add, CheckBox, x16 y64 w120 h23 vRightClick, Hold Right Click?
+        Gui Add, Text, x144 y64 w54 h23 +0x200, Cooldown:
+        Gui Add, DropDownList, x201 y64 w215 vweapon Choose2,%optListStr%
+        Gui Add, CheckBox, x16 y96 w120 h23 vCustomCooldown, Custom Cooldown
+        Gui Add, Slider, x144 y96 w201 h32 +Tooltip Range2-40 vCdSliderValue, 2
+        Gui Add, Button, x16 y128 w80 h23, &OK
 
-        guiInitialized = True
+        guiInitialized := True
     }
 
-	if (currentWinId = winid)
-	{
-		Gui Show, w425 h160, Simple Auto Clicker
-	}
-    
+    if (winid != "" && !WinExist("ahk_id" winid))
+    {
+        MsgBox, , %appTitle%, Minecraft Window not found (maybe it was closed).`nSwitch to new window and press CTRL+J to set it up.
+        winid := ""
+        Gui, Destroy
+        guiInitialized := False
+        Return
+    }
+
+    if (currentWinId = winid)
+    {
+        Gui Show, w425 h160, %appTitle%
+    }
+
 return
 
 ButtonOK:
@@ -58,10 +68,10 @@ ButtonOK:
     timer := optObj[cleanWeapon]
 
     ;Overrides the DropDown choice if Custom Cooldown is selected and assigns the slider value to it
-	if (CustomCooldown)
-	{
-		timer := CdSliderValue * 1000
-	}
+    if (CustomCooldown)
+    {
+        timer := CdSliderValue * 1000
+    }
 
     MsgBox, , Simple Auto Clicker, Cooldown set to %timer% ms. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
 
@@ -73,12 +83,23 @@ return
     DetectHiddenWindows, On
     WinGet, currentWinId, , A
 
+    test := WinExist("ahk_id" winid)
+
     ;Check if window is initialized and asks user for it if it wasn't
-	if (winid = "")
-	{
-		MsgBox, , Simple Auto Clicker, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
-		return
-	}
+    if (winid = "")
+    {
+        MsgBox, , %appTitle%, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
+        return
+    }
+
+    if (!WinExist("ahk_id" winid))
+    {
+        winid := ""
+        Gui, Destroy
+        guiInitialized := False
+        MsgBox, , %appTitle%, Minecraft Window not found (maybe it was closed).`nSwitch to new window and press CTRL+J to set it up.
+        Return
+    }
 
     ;Check if HotKey was triggered in Minecraft, avoiding messing with any other application the user may be using (Alt Tabbed)
     if (currentWinId = winid)
@@ -94,22 +115,29 @@ return
         }
 
         isClicking := True
+        If (RightClick=1) 
+        {
+            ControlClick,, ahk_id %winid%,, Right,, NA D
+        }
         Loop 
         {
-            If (RightClick=1) 
+            ;Check if attached MC window still exists, otherwise break the loop
+            if (!WinExist("ahk_id" winid))
             {
-                ControlClick,, ahk_id %winid%,, Right,, NA D
+                break
             }
 
             ControlClick,, ahk_id %winid%,,Left,,NA
             Sleep, %timer%
 
-            ;Check every loop if it should continue, otherwise, break the loop
+            ;Check every loop if it should continue, otherwise break the loop
             if not isClicking
             {
                 break
             }
         }
+
+        ControlClick,, ahk_id %winid%,, Right,, NA U
         isClicking := False
     }
 
@@ -117,5 +145,5 @@ return
 #MaxThreadsPerHotkey 1
 
 ^!j::
-	MsgBox, , Simple Auto Clicker, Simple Auto Clicker closed
-	ExitApp
+    MsgBox, , %appTitle%, Simple Auto Clicker closed
+ExitApp
