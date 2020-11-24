@@ -18,6 +18,16 @@ Global winid = ""
 
 for k, v in optObj
     optListStr .= "|" k " (" Round(v/1000, 3) " s)"
+    
+Menu, Tray, Add ;separator
+Menu, Tray, Add, AttachMc
+Menu, Tray, Add, CloseScript
+
+Menu, Tray, NoStandard
+
+
+
+    
 
 MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
 
@@ -42,6 +52,7 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
         guiInitialized := True
     }
 
+    ;Check if MC window was closed; destroy GUI to set up all from scratch in this case
     if (winid != "" && !WinExist("ahk_id" winid))
     {
         MsgBox, , %appTitle%, Minecraft Window not found (maybe it was closed).`nSwitch to new window and press CTRL+J to set it up.
@@ -76,6 +87,8 @@ ButtonOK:
     MsgBox, , Simple Auto Clicker, Cooldown set to %timer% ms. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
 
     ;Option set so that the user is able to trigger CTRL+SHIFT+J while looping
+
+    Menu, Tray, Add, Start Clicking, ToggleClicking
     #MaxThreadsPerHotkey 3
 return
 
@@ -92,6 +105,7 @@ return
         return
     }
 
+    ;Check if attached MC still exists
     if (!WinExist("ahk_id" winid))
     {
         winid := ""
@@ -109,11 +123,15 @@ return
         if isClicking 
         {
             isClicking := False
+            Menu, Tray, UseErrorLevel
+            Menu, Tray, Rename, Stop Clicking, Start Clicking
             ControlClick,, ahk_id %winid%,, Right,, NA U
             ControlClick,, ahk_id %winid%,,Left,,NA U
             return
         }
 
+        
+        Menu, Tray, Rename, Start Clicking, Stop Clicking
         isClicking := True
         If (RightClick=1) 
         {
@@ -139,6 +157,7 @@ return
 
         ControlClick,, ahk_id %winid%,, Right,, NA U
         isClicking := False
+        Menu, Tray, Rename, Stop Clicking, Start Clicking
     }
 
 return
@@ -147,3 +166,26 @@ return
 ^!j::
     MsgBox, , %appTitle%, Simple Auto Clicker closed
 ExitApp
+
+ToggleClicking:
+{
+    WinActivate, "ahk_id" winid
+    MsgBox, , Started
+    Gosub, ^+j
+
+    return
+}
+       
+
+AttachMc:
+{
+    MsgBox, , Attached
+    return
+}
+
+CloseScript:
+{
+    Gosub, ^!j
+    return
+}
+    
