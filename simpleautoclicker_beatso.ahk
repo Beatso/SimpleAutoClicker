@@ -14,7 +14,9 @@ Global appTitle = "Simple Auto Clicker v2.0.1"
 
 Global isClicking = False
 Global guiInitialized = False
+Global mcStatus = ""
 Global winid = ""
+Global winname = ""
 
 for k, v in optObj
     optListStr .= "|" k " (" Round(v/1000, 3) " s)"
@@ -34,13 +36,37 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
     WinGet, currentWinId, , A
     WinClose, ahk_class #32770
 
-    ;avoid setting variables to GUI controls twice, enabling reopening of GUI and change settings by just invoking CTRL+J at any time
-    if (not guiInitialized)
+    UpdateMcStatus(currentWinId)
+
+    if (mcStatus = "inactive")
     {
-        AttachMc()
+        return
     }
 
-    mcStatus := CheckMcWindow(winid, currentWinId)
+    if (mcStatus = "closed")
+    {
+        McStatusHandler() 
+    }
+
+    if (mcStatus = "detached")
+    {
+        AttachMc()
+        UpdateMcStatus(currentWinId)
+    }
+
+    ;Avoid setting variables to GUI controls twice, enabling reopening of GUI and change settings by just invoking CTRL+J at any time
+    if (not guiInitialized)
+    {
+        Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program altogether.
+        Gui Add, CheckBox, x16 y64 w120 h23 vRightClick, Hold Right Click?
+        Gui Add, Text, x144 y64 w54 h23 +0x200, Cooldown:
+        Gui Add, DropDownList, x201 y64 w215 vweapon Choose2,%optListStr%
+        Gui Add, CheckBox, x16 y96 w120 h23 vCustomCooldown, Custom Cooldown
+        Gui Add, Slider, x144 y96 w201 h32 +Tooltip Range2-40 vCdSliderValue, 2
+        Gui Add, Button, x16 y128 w80 h23, &OK
+
+        guiInitialized := True
+    }
 
     if (mcStatus = "ok")
     {
@@ -66,8 +92,9 @@ ButtonOK:
     MsgBox, , Simple Auto Clicker, Cooldown set to %timer% ms. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
 
     ;Option set so that the user is able to trigger CTRL+SHIFT+J while looping
-
+    Menu, Tray, UseErrorLevel
     Menu, Tray, Enable, Start Clicking
+    Menu, Tray, UseErrorLevel, Off
     #MaxThreadsPerHotkey 3
 return
 
@@ -75,51 +102,51 @@ return
     DetectHiddenWindows, On
     WinGet, currentWinId, , A
 
-    mcStatus := CheckMcWindow(winid, currentWinId)
+    UpdateMcStatus(currentWinId)
+
     ;Check if HotKey was triggered in Minecraft or if closing was detected, avoiding messing with any other application the user may be using (Alt Tabbed) and
     ;leaving the script running on a closed window
-    if (mcStatus = "ok")
+    if (mcStatus = "inactive")
     {
-        ;Stop the Clicking, to avoid being "stuck" right clicking (as it would happen with the old ::Pause function) and
-        ;returns to original state (waiting for CTRL+SHIFT+J)
-        if (isClicking)
-        {
-            isClicking := False
-            ToggleClickMenu()
-            ControlClick,, ahk_id %winid%,, Right,, NA U
-            ControlClick,, ahk_id %winid%,,Left,,NA U
-            mcStatus := CheckMcWindow(winid, currentWinId)
-            return
-        }
+        return
+    }
 
-        isClicking := True
+    ;Stop the Clicking, to avoid being "stuck" right clicking (as it would happen with the old ::Pause function) and
+    ;returns to original state (waiting for CTRL+SHIFT+J)
+    if (isClicking)
+    {
+        isClicking := False
         ToggleClickMenu()
-        If (RightClick=1) 
-        {
-            ControlClick,, ahk_id %winid%,, Right,, NA D
-        }
-        Loop 
-        {
-            ;If the window becomes unavailable, stop clicking
-            if( !WinExist("ahk_id" winid))
-            {
-                isClicking := False
-                ToggleClickMenu()
-                ControlClick,, ahk_id %winid%,, Right,, NA U
-                ControlClick,, ahk_id %winid%,,Left,,NA U
-                mcStatus := CheckMcWindow(winid, currentWinId)
-                break
-            }
+        ControlClick,, ahk_id %winid%,, Right,, NA U
+        ControlClick,, ahk_id %winid%,,Left,,NA U
+        McStatusHandler()
+        return
+    }
 
-            ;Check every loop if it should continue, otherwise break the loop
-            if not isClicking
-            {
-                break
-            }
-
-            ControlClick,, ahk_id %winid%,,Left,,NA
-            Sleep, %timer%
+    isClicking := True
+    ToggleClickMenu()
+    If (RightClick=1) 
+    {
+        ControlClick,, ahk_id %winid%,, Right,, NA D
+    }
+    Loop 
+    {
+        UpdateMcStatus(currentWinId)
+        ;If the window becomes unavailable, stop clicking
+        if(mcStatus = "closed" || mcStatus = "detached")
+        {
+            Gosub, ^+j
+            break
         }
+
+        ;Check every loop if it should continue, otherwise break the loop
+        if not isClicking
+        {
+            break
+        }
+
+        ControlClick,, ahk_id %winid%,,Left,,NA
+        Sleep, %timer%
     }
 
 return
@@ -141,31 +168,46 @@ ToggleClickMenu()
     }
 }
 
-CheckMcWindow(originalWindowId, currentWindowId)
+UpdateMcStatus(currentWindowId)
 {
-    isAttached := originalWindowId != ""
-    isAlive := WinExist("ahk_id" originalWindowId)
-    isActive := currentWindowId = originalWindowId
+    isAttached := winid != ""
+    isAlive := WinExist("ahk_id" winid)
+    isActive := currentWindowId = winid
 
     if (!isAttached)
     {
-        MsgBox, , %appTitle%, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
-        return "detached"
+        mcStatus := "detached"
+        return
     }
 
     if (!isAlive)
     {
-        DetachMc()
-        MsgBox, , %appTitle%, Minecraft Window not found (maybe it was closed).`nSwitch to new window and press CTRL+J to set it up.
-        return "closed"
+        mcStatus := "closed"
+        return
     }
 
     if (!isActive)
     {
-        return "inactive"
+        mcStatus := "inactive"
+        return
     }
 
-return "ok"
+    mcStatus := "ok"
+return
+}
+
+McStatusHandler()
+{
+    switch mcStatus
+    {
+        case "detached": MsgBox, , %appTitle%, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
+        case "closed": {
+            DetachMc()
+            MsgBox, , %appTitle%, Minecraft Window not found (maybe it was closed).`nSwitch to new window and press CTRL+J to set it up.
+        }
+    }
+
+return
 }
 
 AttachMc()
@@ -173,25 +215,15 @@ AttachMc()
     WinGet, winid, , A
     WinGetTitle, winname, A
 
-    Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program altogether.
-    Gui Add, CheckBox, x16 y64 w120 h23 vRightClick, Hold Right Click?
-    Gui Add, Text, x144 y64 w54 h23 +0x200, Cooldown:
-    Gui Add, DropDownList, x201 y64 w215 vweapon Choose2,%optListStr%
-    Gui Add, CheckBox, x16 y96 w120 h23 vCustomCooldown, Custom Cooldown
-    Gui Add, Slider, x144 y96 w201 h32 +Tooltip Range2-40 vCdSliderValue, 2
-    Gui Add, Button, x16 y128 w80 h23, &OK
-
-    guiInitialized := True
 }
 
 DetachMc()
 {
     winid := ""
-    Gui, Destroy
+    winname := ""
     Menu, Tray, UseErrorLevel
     Menu, Tray, Disable, Start Clicking
     Menu, Tray, UseErrorLevel, Off
-    guiInitialized := False
 }
 
 ToggleClicking:
