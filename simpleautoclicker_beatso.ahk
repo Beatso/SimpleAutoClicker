@@ -21,12 +21,13 @@ Global winname = ""
 for k, v in optObj
     optListStr .= "|" k " (" Round(v/1000, 3) " s)"
 
-Menu, Tray, Add ;separator
-Menu, Tray, Add, AttachMcTray
-Menu, Tray, Add, CloseScript
 Menu, Tray, Add, Start Clicking, ToggleClicking
-Menu, Tray, Disable, Start Clicking
+Menu, Tray, Add, Reset Minecraft Window, AttachMcTray
+Menu, Tray, Add ;separator
+Menu, Tray, Add, CloseScript
 
+Menu, Tray, Disable, Start Clicking
+Menu, Tray, Disable, Reset Minecraft Window
 Menu, Tray, NoStandard
 
 MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
@@ -71,6 +72,7 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
     if (mcStatus = "ok")
     {
         Gui Show, w425 h160, %appTitle%
+        
     }
 return
 
@@ -214,6 +216,7 @@ AttachMc()
 {
     WinGet, winid, , A
     WinGetTitle, winname, A
+    Menu, Tray, Enable, Reset Minecraft Window
 
 }
 
@@ -224,6 +227,7 @@ DetachMc()
     Menu, Tray, UseErrorLevel
     Menu, Tray, Disable, Start Clicking
     Menu, Tray, UseErrorLevel, Off
+    Menu, Tray, Disable, Reset Minecraft Window
 }
 
 ToggleClicking:
@@ -236,7 +240,12 @@ ToggleClicking:
 
 AttachMcTray:
     {
-        MsgBox, , Attached
+        if (isClicking)
+        {
+            WinActivate, "ahk_id" winid
+            Gosub, ^+j
+        }
+        Reload
         return
     }
 
