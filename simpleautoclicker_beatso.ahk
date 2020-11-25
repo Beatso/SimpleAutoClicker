@@ -1,5 +1,4 @@
 ﻿; Simple Auto Clicker by Beatso rev by carlosmachina
-
 #NoEnv
 ;remove question when running the script twice (force substitution)
 #SingleInstance force
@@ -10,7 +9,7 @@ SetWorkingDir %A_ScriptDir%
 Global optObj := Object("Spam Click", 100, "Any Sword", 625, "Wooden or Stone Axe", 1250, "Iron Axe", 1110, "Gold, Diamond or Netherite Axe", 1000)
 Global optListStr := "|"
 Global timer := 1000
-Global appTitle := "Simple Auto Clicker v2.0.1"
+Global appTitle := "Simple Auto Clicker v2.2.5"
 
 Global isClicking := False
 Global guiInitialized := False
@@ -32,10 +31,7 @@ Menu, Tray, Disable, Start Clicking
 Menu, Tray, Disable, Reset Minecraft Window
 Menu, Tray, NoStandard
 
-Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
-
 MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
-Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
 
 ^j::
 
@@ -63,7 +59,6 @@ Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
     ;Avoid setting variables to GUI controls twice, enabling reopening of GUI and change settings by just invoking CTRL+J at any time
     if (not guiInitialized)
     {
-        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
         Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program altogether.
         Gui Add, CheckBox, x16 y64 w120 h23 vRightClick, Hold Right Click?
         Gui Add, Text, x144 y64 w54 h23 +0x200, Cooldown:
@@ -77,7 +72,6 @@ Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
 
     if (mcStatus = "ok")
     {
-        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
         Gui Show, w425 h160, %appTitle%
     }
 return
@@ -100,11 +94,6 @@ ButtonOK:
     displayTimer := ValueDisplayFormat(timer)
 
     MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
-
-    if (isClicking)
-    {
-        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_running.ico
-    }
     
     Menu, Tray, UseErrorLevel
     Menu, Tray, Enable, Start Clicking
@@ -131,7 +120,6 @@ return
     if (isClicking)
     {
         isClicking := False
-        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
         ToggleClickMenu()
         ControlClick,, ahk_id %winid%,, Right,, NA U
         ControlClick,, ahk_id %winid%,,Left,,NA U
@@ -140,7 +128,6 @@ return
     }
 
     isClicking := True
-    Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_running.ico
     ToggleClickMenu()
     If (RightClick=1) 
     {
@@ -218,14 +205,12 @@ UpdateMcStatus(currentWindowId)
     if (!isAttached)
     {
         mcStatus := "detached"
-        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
         return
     }
 
     if (!isAlive)
     {
         mcStatus := "closed"
-        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_closed.ico
         return
     }
 
@@ -244,12 +229,10 @@ McStatusHandler()
     switch mcStatus
     {
         case "detached": {
-            Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
             MsgBox, , %appTitle%, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
         }
         case "closed": {
             DetachMc()
-            Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_closed.ico
             MsgBox, , %appTitle%, Minecraft Window not found (maybe it was closed).`nSwitch to new window and press CTRL+J to set it up.
         }
     }
