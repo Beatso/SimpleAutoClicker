@@ -29,6 +29,7 @@ Menu, Tray, Add, Exit, CloseScript
 
 Menu, Tray, Disable, Start Clicking
 Menu, Tray, Disable, Reset Minecraft Window
+menu, Tray, Tip, %appTitle%
 Menu, Tray, NoStandard
 
 MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
@@ -120,6 +121,7 @@ return
     if (isClicking)
     {
         isClicking := False
+        TrayTip, %appTitle%, Clicking Deactivated
         ToggleClickMenu()
         ControlClick,, ahk_id %winid%,, Right,, NA U
         ControlClick,, ahk_id %winid%,,Left,,NA U
@@ -129,6 +131,7 @@ return
 
     isClicking := True
     ToggleClickMenu()
+    TrayTip, %appTitle%, Clicking Activated
     If (RightClick=1) 
     {
         ControlClick,, ahk_id %winid%,, Right,, NA D
