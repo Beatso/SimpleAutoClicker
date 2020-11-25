@@ -9,28 +9,33 @@ SetWorkingDir %A_ScriptDir%
 ;Options Object, making possible to change the DropDown options here without updating if clauses. Its OK to edit, add and remove items from list
 Global optObj := Object("Spam Click", 100, "Any Sword", 625, "Wooden or Stone Axe", 1250, "Iron Axe", 1110, "Gold, Diamond or Netherite Axe", 1000)
 Global optListStr := "|"
-Global timer = 1000
-Global appTitle = "Simple Auto Clicker v2.0.1"
+Global timer := 1000
+Global appTitle := "Simple Auto Clicker v2.0.1"
 
-Global isClicking = False
-Global guiInitialized = False
-Global mcStatus = ""
-Global winid = ""
-Global winname = ""
+Global isClicking := False
+Global guiInitialized := False
+Global mcStatus := ""
+Global winid := ""
+Global winname := ""
 
 for k, v in optObj
-    optListStr .= "|" k " (" Round(v/1000, 3) " s)"
+{
+    optListStr .= "|" k " ("ValueDisplayFormat(v)")"
+}
 
 Menu, Tray, Add, Start Clicking, ToggleClicking
-Menu, Tray, Add, Reset Minecraft Window, AttachMcTray
+Menu, Tray, Add, Reset Minecraft Window, ResetMc
 Menu, Tray, Add ;separator
-Menu, Tray, Add, CloseScript
+Menu, Tray, Add, Exit, CloseScript
 
 Menu, Tray, Disable, Start Clicking
 Menu, Tray, Disable, Reset Minecraft Window
 Menu, Tray, NoStandard
 
+Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
+
 MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
+Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
 
 ^j::
 
@@ -58,6 +63,7 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
     ;Avoid setting variables to GUI controls twice, enabling reopening of GUI and change settings by just invoking CTRL+J at any time
     if (not guiInitialized)
     {
+        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
         Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program altogether.
         Gui Add, CheckBox, x16 y64 w120 h23 vRightClick, Hold Right Click?
         Gui Add, Text, x144 y64 w54 h23 +0x200, Cooldown:
@@ -71,8 +77,8 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
 
     if (mcStatus = "ok")
     {
+        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
         Gui Show, w425 h160, %appTitle%
-        
     }
 return
 
@@ -91,12 +97,20 @@ ButtonOK:
         timer := CdSliderValue * 1000
     }
 
-    MsgBox, , Simple Auto Clicker, Cooldown set to %timer% ms. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
+    displayTimer := ValueDisplayFormat(timer)
 
-    ;Option set so that the user is able to trigger CTRL+SHIFT+J while looping
+    MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
+
+    if (isClicking)
+    {
+        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_running.ico
+    }
+    
     Menu, Tray, UseErrorLevel
     Menu, Tray, Enable, Start Clicking
     Menu, Tray, UseErrorLevel, Off
+
+    ;Option set so that the user is able to trigger CTRL+SHIFT+J while looping
     #MaxThreadsPerHotkey 3
 return
 
@@ -106,8 +120,7 @@ return
 
     UpdateMcStatus(currentWinId)
 
-    ;Check if HotKey was triggered in Minecraft or if closing was detected, avoiding messing with any other application the user may be using (Alt Tabbed) and
-    ;leaving the script running on a closed window
+    ;Check if HotKey was triggered in Minecraft avoiding messing with any other application the user may be using (Alt Tabbed)
     if (mcStatus = "inactive")
     {
         return
@@ -118,6 +131,7 @@ return
     if (isClicking)
     {
         isClicking := False
+        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc.ico
         ToggleClickMenu()
         ControlClick,, ahk_id %winid%,, Right,, NA U
         ControlClick,, ahk_id %winid%,,Left,,NA U
@@ -126,6 +140,7 @@ return
     }
 
     isClicking := True
+    Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_running.ico
     ToggleClickMenu()
     If (RightClick=1) 
     {
@@ -158,6 +173,30 @@ return
     MsgBox, , %appTitle%, Simple Auto Clicker closed
 ExitApp
 
+ValueDisplayFormat(value)
+{
+    formattedValue := 0
+    valueMeasurement := "ms"
+    if (value < 1000)
+    {
+        formattedValue := value
+    }
+    else if (value >= 2000)
+    {
+        formattedValue := value/1000
+        formattedValue := Format("{:d}", formattedValue)
+        valueMeasurement := "s"
+    }
+    else
+    {
+        formattedValue := value/1000
+        formattedValue := Format("{:.2f}" , formattedValue)
+        valueMeasurement := "s"
+    }
+
+    return formattedValue valueMeasurement
+}
+
 ToggleClickMenu()
 {
     if (isClicking)
@@ -179,12 +218,14 @@ UpdateMcStatus(currentWindowId)
     if (!isAttached)
     {
         mcStatus := "detached"
+        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
         return
     }
 
     if (!isAlive)
     {
         mcStatus := "closed"
+        Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_closed.ico
         return
     }
 
@@ -202,9 +243,13 @@ McStatusHandler()
 {
     switch mcStatus
     {
-        case "detached": MsgBox, , %appTitle%, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
+        case "detached": {
+            Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_detached.ico
+            MsgBox, , %appTitle%, Minecraft Window not set, please switch to it and press Ctrl+J to set it up.
+        }
         case "closed": {
             DetachMc()
+            Menu, Tray, Icon, %A_ScriptDir%/pics/sacmc_closed.ico
             MsgBox, , %appTitle%, Minecraft Window not found (maybe it was closed).`nSwitch to new window and press CTRL+J to set it up.
         }
     }
@@ -217,7 +262,6 @@ AttachMc()
     WinGet, winid, , A
     WinGetTitle, winname, A
     Menu, Tray, Enable, Reset Minecraft Window
-
 }
 
 DetachMc()
@@ -232,13 +276,14 @@ DetachMc()
 
 ToggleClicking:
     {
-        WinActivate, "ahk_id" winid
-        MsgBox, , Started
+        if WinExist("ahk_id" winid)
+            WinActivate
+        
         Gosub, ^+j
         return
     }
 
-AttachMcTray:
+ResetMc:
     {
         if (isClicking)
         {
