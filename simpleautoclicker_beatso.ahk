@@ -94,7 +94,7 @@ ButtonOK:
 
     displayTimer := ValueDisplayFormat(timer)
 
-    MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
+    MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings. Use Ctrl+Shift+J to pause, and Ctrl+Alt+J to quit.
     
     Menu, Tray, UseErrorLevel
     Menu, Tray, Enable, Start Clicking
