@@ -60,7 +60,7 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
     ;Avoid setting variables to GUI controls twice, enabling reopening of GUI and change settings by just invoking CTRL+J at any time
     if (not guiInitialized)
     {
-        Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program altogether.
+        Gui Add, Text, x14 y8 w402 h50, Minecraft window set to %winname%.`nPress Ctrl+Shift+J to pause/unpause clicking`, and Ctrl+Alt+J to quit the program, and Ctrl+J to edit these settings at any time.
         Gui Add, CheckBox, x16 y64 w120 h23 vRightClick, Hold Right Click?
         Gui Add, Text, x144 y64 w54 h23 +0x200, Cooldown:
         Gui Add, DropDownList, x201 y64 w215 vweapon Choose2,%optListStr%
@@ -98,9 +98,8 @@ ButtonOK:
 
     displayTimer := ValueDisplayFormat(timer)
 
-    MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
-
-    Menu, Tray, UseErrorLevel
+    MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings. Use Ctrl+Shift+J to pause, and Ctrl+Alt+J to quit.
+        Menu, Tray, UseErrorLevel
     Menu, Tray, Enable, Start Clicking
     Menu, Tray, UseErrorLevel, Off
 
