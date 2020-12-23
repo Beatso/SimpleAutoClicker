@@ -73,6 +73,10 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
 
     if (mcStatus = "ok")
     {
+        if(isClicking)
+        {
+            Gosub, ^+j 
+        }
         Gui Show, w425 h160, %appTitle%
     }
 return
@@ -95,7 +99,7 @@ ButtonOK:
     displayTimer := ValueDisplayFormat(timer)
 
     MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings.
-    
+
     Menu, Tray, UseErrorLevel
     Menu, Tray, Enable, Start Clicking
     Menu, Tray, UseErrorLevel, Off
@@ -132,10 +136,7 @@ return
     isClicking := True
     ToggleClickMenu()
     TrayTip, %appTitle%, Clicking Activated
-    If (RightClick=1) 
-    {
-        ControlClick,, ahk_id %winid%,, Right,, NA D
-    }
+
     Loop 
     {
         UpdateMcStatus(currentWinId)
@@ -149,7 +150,13 @@ return
         ;Check every loop if it should continue, otherwise break the loop
         if not isClicking
         {
+            ControlClick,, ahk_id %winid%,, Right,, NA U
             break
+        }
+
+        If (RightClick=1) 
+        {
+            ControlClick,, ahk_id %winid%,, Right,, NA D
         }
 
         ControlClick,, ahk_id %winid%,,Left,,NA
@@ -184,7 +191,7 @@ ValueDisplayFormat(value)
         valueMeasurement := "s"
     }
 
-    return formattedValue valueMeasurement
+return formattedValue valueMeasurement
 }
 
 ToggleClickMenu()
@@ -264,7 +271,7 @@ ToggleClicking:
     {
         if WinExist("ahk_id" winid)
             WinActivate
-        
+
         Gosub, ^+j
         return
     }
