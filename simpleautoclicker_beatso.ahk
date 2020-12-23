@@ -9,7 +9,7 @@ SetWorkingDir %A_ScriptDir%
 Global optObj := Object("Spam Click", 100, "Any Sword", 625, "Wooden or Stone Axe", 1250, "Iron Axe", 1110, "Gold, Diamond or Netherite Axe", 1000)
 Global optListStr := "|"
 Global timer := 1000
-Global appTitle := "Simple Auto Clicker v2.2.5"
+Global appTitle := "Simple Auto Clicker v2.2.7"
 
 Global isClicking := False
 Global guiInitialized := False
