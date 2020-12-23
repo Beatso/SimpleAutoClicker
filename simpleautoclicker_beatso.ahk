@@ -9,7 +9,7 @@ SetWorkingDir %A_ScriptDir%
 Global optObj := Object("Spam Click", 100, "Any Sword", 625, "Wooden or Stone Axe", 1250, "Iron Axe", 1110, "Gold, Diamond or Netherite Axe", 1000)
 Global optListStr := "|"
 Global timer := 1000
-Global appTitle := "Simple Auto Clicker v2.2.6"
+Global appTitle := "Simple Auto Clicker v2.2.7"
 
 Global isClicking := False
 Global guiInitialized := False
@@ -73,6 +73,10 @@ MsgBox, , Simple Auto Clicker, Go to Minecraft window and press Ctrl+J to start.
 
     if (mcStatus = "ok")
     {
+        if(isClicking)
+        {
+            Gosub, ^+j 
+        }
         Gui Show, w425 h160, %appTitle%
     }
 return
@@ -95,8 +99,7 @@ ButtonOK:
     displayTimer := ValueDisplayFormat(timer)
 
     MsgBox, , Simple Auto Clicker, Cooldown set to %displayTimer%. Press Ctrl+Shift+J in Minecraft to start.`nPress Ctrl+J at any time to change settings. Use Ctrl+Shift+J to pause, and Ctrl+Alt+J to quit.
-    
-    Menu, Tray, UseErrorLevel
+        Menu, Tray, UseErrorLevel
     Menu, Tray, Enable, Start Clicking
     Menu, Tray, UseErrorLevel, Off
 
@@ -132,10 +135,7 @@ return
     isClicking := True
     ToggleClickMenu()
     TrayTip, %appTitle%, Clicking Activated
-    If (RightClick=1) 
-    {
-        ControlClick,, ahk_id %winid%,, Right,, NA D
-    }
+
     Loop 
     {
         UpdateMcStatus(currentWinId)
@@ -149,7 +149,13 @@ return
         ;Check every loop if it should continue, otherwise break the loop
         if not isClicking
         {
+            ControlClick,, ahk_id %winid%,, Right,, NA U
             break
+        }
+
+        If (RightClick=1) 
+        {
+            ControlClick,, ahk_id %winid%,, Right,, NA D
         }
 
         ControlClick,, ahk_id %winid%,,Left,,NA
@@ -184,7 +190,7 @@ ValueDisplayFormat(value)
         valueMeasurement := "s"
     }
 
-    return formattedValue valueMeasurement
+return formattedValue valueMeasurement
 }
 
 ToggleClickMenu()
@@ -264,7 +270,7 @@ ToggleClicking:
     {
         if WinExist("ahk_id" winid)
             WinActivate
-        
+
         Gosub, ^+j
         return
     }
