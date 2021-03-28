@@ -1,5 +1,13 @@
 # Frequently Asked Questions
 
+- [Is the program safe?](#is-the-program-safe)
+- [Why is Minecraft quitting to the title screen when running the program?](#why-is-minecraft-quitting-to-the-title-screen-when-running-the-program)
+- [Can I run the program on Mac?](#can-i-run-the-program-on-mac)
+- [Can I use this program on servers?](#can-i-use-this-program-on-servers)
+- [Can I change the hotkeys?](#can-i-change-the-hotkeys)
+- [How can I run the uncompiled program in AHK?](#how-can-i-run-the-uncompiled-program-in-ahk)
+- [How can I compile the program myself?](#how-can-i-compile-the-program-myself)
+
 ## Is the program safe?
 
 Use the program at your own risk. If you don't trust me, do not use the program. If you'd like to view the source code of this project, look at [the script](https://github.com/Beatso/SimpleAutoClicker/blob/master/main.ahk) in this GitHub repository. If you'd like to use an uncompiled version of the code rather than the .exe file, see [How can I run the uncompiled program in AHK?](#how-can-i-run-the-uncompiled-program-in-ahk) below. I take no liability for any damage caused by the program. 
