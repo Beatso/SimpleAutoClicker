@@ -2,7 +2,7 @@
 
 - [Is the program safe?](#is-the-program-safe)
 - [Why is Minecraft quitting to the title screen when running the program?](#why-is-minecraft-quitting-to-the-title-screen-when-running-the-program)
-- [Can I run the program on Mac?](#can-the-program-run-on-mac)
+- [Can the program run on Mac?](#can-the-program-run-on-mac)
 - [Can I use this program on servers?](#can-i-use-this-program-on-servers)
 - [Can I change the hotkeys?](#can-i-change-the-hotkeys)
 - [How can I run the uncompiled program in AHK?](#how-can-i-run-the-uncompiled-program-in-ahk)
