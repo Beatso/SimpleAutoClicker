@@ -2,7 +2,7 @@
 
 - [Is the program safe?](#is-the-program-safe)
 - [Why is Minecraft quitting to the title screen when running the program?](#why-is-minecraft-quitting-to-the-title-screen-when-running-the-program)
-- [Can I run the program on Mac?](#can-i-run-the-program-on-mac)
+- [Can I run the program on Mac?](#can-the-program-run-on-mac)
 - [Can I use this program on servers?](#can-i-use-this-program-on-servers)
 - [Can I change the hotkeys?](#can-i-change-the-hotkeys)
 - [How can I run the uncompiled program in AHK?](#how-can-i-run-the-uncompiled-program-in-ahk)
@@ -16,7 +16,7 @@ Use the program at your own risk. If you don't trust me, do not use the program.
 
 You probably have the Minecraft setting Pause on Lost Focus enabled. Press F3+P in-game to turn this off.
 
-## Can I run the program on Mac?
+## Can the program run on Mac?
 
 No. Simple Auto Clicker will never work on any operating system other than Windows. This is since it is written in [AHK](https://www.autohotkey.com/), a scripting language designed solely for Windows.
 
